@@ -1,0 +1,6 @@
+:INPUT ACCEPT [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+-A INPUT -p tcp -m tcp --dport 21 -j ACCEPT
+COMMIT
+# Completed on Sat May  9 14:00:11 2026
