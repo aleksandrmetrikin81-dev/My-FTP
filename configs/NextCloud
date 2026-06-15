@@ -1,0 +1,62 @@
+1. Обновление системы
+
+sudo apt update && sudo apt upgrade -y
+Устанавливаем необходимые пакеты:
+
+sudo apt install curl wget unzip -y
+2. Установка Apache и PHP
+NextCloud требует веб-сервер и PHP. Установим Apache и необходимые модули PHP:
+
+sudo apt install apache2 mariadb-server libapache2-mod-php php php-cli php-mbstring php-xml php-gd php-curl php-zip php-intl php-bcmath php-gmp php-imagick php-common php-json php-mysql -y
+Запускаем и добавляем Apache и MariaDB в автозагрузку:
+
+sudo systemctl enable --now apache2 mariadb
+3. Настройка базы данных
+Запускаем настройку MariaDB:
+
+sudo mysql_secure_installation
+sudo mysql -u root -p
+
+Вводим команды:
+
+CREATE DATABASE nextcloud;
+CREATE USER 'nextcloud_user'@'localhost' IDENTIFIED BY 'ПАРОЛЬ';
+GRANT ALL PRIVILEGES ON nextcloud. TO 'nextcloud_user'@'localhost';*
+FLUSH PRIVILEGES;
+EXIT;
+4. Установка NextCloud
+Скачиваем последнюю версию NextCloud:
+
+cd /var/www/
+sudo wget https://download.nextcloud.com/server/releases/latest.zip
+sudo unzip latest.zip
+sudo mv nextcloud /var/www/html/
+sudo chown -R www-data:www-data /var/www/html/nextcloud
+sudo chmod -R 755 /var/www/html/nextcloud
+
+5. Настройка Apache
+Создадим конфигурационный файл:
+
+sudo nano /etc/apache2/sites-available/nextcloud.conf
+        <VirtualHost *:80>
+    ServerAdmin admin@example.com
+    DocumentRoot /var/www/html/nextcloud
+    ServerName your_domain_or_IP
+
+    <Directory /var/www/html/nextcloud/>
+        Require all granted
+        AllowOverride All
+        Options FollowSymLinks MultiViews
+    </Directory>
+
+    ErrorLog ${APACHE_LOG_DIR}/nextcloud_error.log
+    CustomLog ${APACHE_LOG_DIR}/nextcloud_access.log combined
+</VirtualHost>
+Активация сайта и перезапускм Apache:
+
+sudo a2ensite nextcloud.conf
+sudo a2enmod rewrite headers env dir mime ssl
+sudo systemctl restart apache2
+6. Завершение установки
+Открываем браузер и переходим по адресу:
+http://your_domain_or_IP
